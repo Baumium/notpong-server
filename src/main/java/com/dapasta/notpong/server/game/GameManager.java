@@ -43,6 +43,14 @@ public class GameManager {
             }
 
             @Override
+            public void disconnected(Connection connection) {
+                super.disconnected(connection);
+
+                Player player = lobbySession.getPlayer(connection.getID());
+                gameSessions.get(player.getGameSession()).removePlayer(connection.getID());
+            }
+
+            @Override
             public void received(Connection connection, Object object) {
                 super.received(connection, object);
                 if (object instanceof CreateGameRequest) {

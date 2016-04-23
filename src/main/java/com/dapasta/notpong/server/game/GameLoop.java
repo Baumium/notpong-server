@@ -13,6 +13,14 @@ public class GameLoop extends Thread {
     private boolean running;
     private ConcurrentLinkedQueue<MovementRequest> queue;
 
+    private double interval = 1000000000.0 / 60.0;
+    private double delta = 0;
+
+    private long lastTime = System.nanoTime();
+
+    private static final float SPEED = 0.4f;
+
+
     public GameLoop(GameManager manager) {
         this.manager = manager;
 
@@ -21,11 +29,6 @@ public class GameLoop extends Thread {
     }
 
     public void run() {
-        double interval = 1000000000.0 / 60.0;
-        double delta = 0;
-
-        long lastTime = System.nanoTime();
-
         while (running) {
             long currentTime = System.nanoTime();
             delta += (currentTime - lastTime) / interval;
@@ -44,10 +47,11 @@ public class GameLoop extends Thread {
             GameSession session = manager.gameSessions.get(packet.sessionId);
             Player player = session.getPlayer(packet.playerId);
 
-            player.getPaddle().move(packet.dx);
+            player.getPaddle().setPosition(packet.x);
 
             MovementResponse response = new MovementResponse();
             response.x = player.getPaddle().getX();
+            response.id = packet.id;
             manager.network.sendTcpPacket(packet.playerId, response);
         }
     }

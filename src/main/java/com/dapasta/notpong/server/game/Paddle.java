@@ -26,4 +26,8 @@ public class Paddle {
     public void move(float dx) {
         x += dx;
     }
+
+    public void setPosition(float x) {
+        this.x = x;
+    }
 }

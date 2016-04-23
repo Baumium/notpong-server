@@ -3,7 +3,7 @@ version '0.0.0'
 
 apply plugin: 'java'
 
-sourceCompatibility = 1.5
+sourceCompatibility = 1.7
 
 repositories {
     mavenCentral()
@@ -11,6 +11,6 @@ repositories {
 
 dependencies {
     compile 'com.esotericsoftware:kryonet:2.22.0-RC1'
-    compile files("../notpong-packets/out/artifacts/notpong_packets_jar/notpong-packets.jar")
+    compile files("../notpong-packets/build/classes/artifacts/com_dapasta_notpong_packets_jar/com.dapasta.notpong.packets.jar")
 //    testCompile group: 'junit', name: 'junit', version: '4.11'
 }
