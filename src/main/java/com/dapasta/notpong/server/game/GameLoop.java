@@ -2,6 +2,7 @@ package com.dapasta.notpong.server.game;
 
 import com.dapasta.notpong.packets.client.MovementRequest;
 import com.dapasta.notpong.packets.server.MovementResponse;
+import com.dapasta.notpong.packets.server.PlayerUpdateBroadcast;
 import com.dapasta.notpong.server.network.GameSession;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -42,6 +43,7 @@ public class GameLoop extends Thread {
     }
 
     private void tick() {
+        // Perform all movements
         MovementRequest packet;
         while ((packet = queue.poll()) != null) {
             GameSession session = manager.gameSessions.get(packet.sessionId);
@@ -53,6 +55,11 @@ public class GameLoop extends Thread {
             response.x = player.getPaddle().getX();
             response.id = packet.id;
             manager.network.sendTcpPacket(packet.playerId, response);
+
+            PlayerUpdateBroadcast broadcast = new PlayerUpdateBroadcast();
+            broadcast.id = packet.playerId;
+            broadcast.x = player.getPaddle().getX();
+            session.broadcastUdp(broadcast);
         }
     }
 
