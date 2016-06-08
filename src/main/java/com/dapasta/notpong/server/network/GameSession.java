@@ -7,19 +7,22 @@ import com.dapasta.notpong.server.game.Player;
 public class GameSession extends Session {
 
     // Session info
+    private String id;
     private String name;
     private String creator;
-    private String id;
+    private int playerSize;
 
     // Game info
-    GameField field;
+    private GameField field;
 
-    public GameSession(String id, String name, String creator, float gameSize) {
+
+    public GameSession(String id, String name, String creator, int playerSize, float fieldSize, float ballRadius, float ballSpeed, float paddleWidth, float paddleHeight) {
         super();
         this.id = id;
         this.name = name;
         this.creator = creator;
-        this.field = new GameField(gameSize);
+        this.playerSize = playerSize;
+        this.field = new GameField(fieldSize, ballRadius, ballSpeed, paddleWidth, paddleHeight);
     }
 
     public String getId() {
@@ -34,6 +37,10 @@ public class GameSession extends Session {
         return creator;
     }
 
+    public int getPlayerSize() {
+        return playerSize;
+    }
+
     public void addPlayer(int id, Player player) {
         player.setGameSession(this.id);
         super.addPlayer(id, player);
@@ -46,6 +53,10 @@ public class GameSession extends Session {
 
     public GameField getGameField() {
         return field;
+    }
+
+    public void update(float delta) {
+        getGameField().update(delta, players.values());
     }
 
 }

@@ -1,6 +1,7 @@
 package com.dapasta.notpong.server.game;
 
 import com.dapasta.notpong.packets.client.MovementRequest;
+import com.dapasta.notpong.packets.server.BallBroadcast;
 import com.dapasta.notpong.packets.server.MovementResponse;
 import com.dapasta.notpong.packets.server.PlayerUpdateBroadcast;
 import com.dapasta.notpong.server.network.GameSession;
@@ -15,11 +16,13 @@ public class GameLoop extends Thread {
     private ConcurrentLinkedQueue<MovementRequest> queue;
 
     private double interval = 1000000000.0 / 60.0;
-    private double delta = 0;
+    private float delta = 0;
 
     private long lastTime = System.nanoTime();
 
     private static final float SPEED = 0.4f;
+
+
 
 
     public GameLoop(GameManager manager) {
@@ -59,7 +62,18 @@ public class GameLoop extends Thread {
             PlayerUpdateBroadcast broadcast = new PlayerUpdateBroadcast();
             broadcast.id = packet.playerId;
             broadcast.x = player.getPaddle().getX();
-            session.broadcastUdp(broadcast);
+            session.broadcastTcp(broadcast);
+        }
+
+        // Update all game sessions
+        for (GameSession session : manager.gameSessions.values()) {
+            session.update(delta);
+
+            BallBroadcast broadcast = new BallBroadcast();
+            broadcast.x = session.getGameField().getBall().getX();
+            broadcast.y = session.getGameField().getBall().getY();
+
+            session.broadcastTcp(broadcast);
         }
     }
 

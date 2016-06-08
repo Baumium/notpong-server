@@ -69,9 +69,10 @@ public class GameManager {
 
 
                     Player player = lobbySession.getPlayer(connection.getID());
-                    player.createPaddle(0.5f, 0.03f, 0.1f);
                     String sessionId = UUID.randomUUID().toString();
-                    GameSession gameSession = new GameSession(sessionId, request.gameName, player.getName(), 100);
+                    GameSession gameSession = new GameSession(sessionId, request.gameName, player.getName(), request.gameSize, request.fieldSize, request.ballRadius, request.ballSpeed, request.paddleWidth, request.paddleHeight);
+                    player.createPaddle(request.fieldSize / 2, request.paddleWidth, request.paddleHeight, gameSession.getPlayers().size());
+
                     gameSession.addPlayer(connection.getID(), player);
                     gameSessions.put(sessionId, gameSession);
 
@@ -79,6 +80,11 @@ public class GameManager {
                     response.gameName = request.gameName;
                     response.creatorName = request.creatorName;
                     response.sessionId = sessionId;
+
+                    response.fieldSize = request.fieldSize;
+                    response.ballRadius = request.ballRadius;
+                    response.paddleWidth = request.paddleWidth;
+                    response.paddleHeight = request.paddleHeight;
 
                     network.sendTcpPacket(connection.getID(), response);
                 } else if (object instanceof GamesRequest) {
@@ -102,7 +108,10 @@ public class GameManager {
 
                     GameSession session = gameSessions.get(request.sessionId);
                     Player player = lobbySession.getPlayer(connection.getID());
-                    player.createPaddle(0.5f, 0.03f, 0.1f);
+                    player.createPaddle(session.getGameField().getFieldSize() / 2,
+                            session.getGameField().getPaddleWidth(),
+                            session.getGameField().getPaddleHeight(),
+                            session.getPlayers().size());
                     session.addPlayer(connection.getID(), player);
 
                     //Notify all existing players of new player
@@ -116,10 +125,21 @@ public class GameManager {
                     response.gameName = session.getName();
                     response.creatorName = session.getCreator();
                     response.players = new HashMap<>();
+                    response.playerSize = session.getPlayerSize();
                     Map<Integer, Player> players = session.getPlayers();
                     for (Integer id : players.keySet()) {
                         response.players.put(id, players.get(id).getName());
                     }
+
+                    response.fieldSize = session.getGameField().getFieldSize();
+                    response.ballRadius = session.getGameField().getBall().getRadius();
+
+                    // TODO: Fix this mess
+                    System.out.println(session.getPlayer(connection.getID()).getPaddle().getWidth());
+                    System.out.println(session.getPlayer(connection.getID()).getPaddle().getWidth());
+                    response.paddleWidth = session.getGameField().getPaddleWidth();
+                    response.paddleHeight = session.getGameField().getPaddleHeight();
+
                     network.sendTcpPacket(connection.getID(), response);
                 } else if (object instanceof MovementRequest) {
                     gameLoop.addPacket((MovementRequest) object);

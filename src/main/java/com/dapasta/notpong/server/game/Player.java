@@ -26,8 +26,8 @@ public class Player {
         return gameSession;
     }
 
-    public void createPaddle(float x, float width, float height) {
-        this.paddle = new Paddle(x, width, height);
+    public void createPaddle(float x, float width, float height, int num) {
+        this.paddle = new Paddle(x, width, height, num);
     }
 
     public Paddle getPaddle() {
